@@ -1,120 +1,115 @@
 class ActionObject{
 
-	constructor(manacost, healthcost, cooldown, actionname){
+  constructor(manacost, healthcost, cooldown, actionname) {
 
-		//the mana and health cost of the actions
-		this.manacost = manacost;
-		this.healthcost = healthcost;
+    //the mana and health cost of the actions
+    this.manacost = manacost;
+    this.healthcost = healthcost;
 
-		//cooldown for this move
-		this.cooldown = cooldown;
-
-
-
-
-		//the distance to cast this from yourself
-		this.distancetoattack = 10;
-
-		//the angle at which to cast this from yourself
-		//0 is in front pi/2 is to the left, pi is behind you, -pi/2 is to the right
-		this.rotationtoattack = 0;
+    //cooldown for this move
+    this.cooldown = cooldown;
 
 
 
 
-		//does this action object create an attack
-		this.doescreateattack = false;
+    //the distance to cast this from yourself
+    this.distancetoattack = 10;
 
-		this.attackobjectcreator = null;
-
-		//the size of the attack
-		this.xsize = 0.5;
-		this.ysize = 0.5;
-
-
-		//the attack object creator
-		this.timetoprime = 10;
-
-		this.timetoexist = 10;
-
-
-
-		//the buffs that this action inflicts on the user
-		this.selfbuffsinflicted = new EntitiesBuffs();
+    //the angle at which to cast this from yourself
+    //0 is in front pi/2 is to the left, pi is behind you, -pi/2 is to the right
+    this.rotationtoattack = 0;
 
 
 
 
+    //does this action object create an attack
+    this.doescreateattack = false;
 
-		//whether this action needs to use the object creator to create an object
-		this.doescreateobject = false;
+    this.attackobjectcreator = null;
 
-		//the distance that you create this object in front of you
-		this.distancetoobject = 1;
-
-		this.rotationtoobject = Math.PI;
-
-		//object creator to create an object
-		this.objectcreator = null;
+    //the size of the attack
+    this.xsize = 0.5;
+    this.ysize = 0.5;
 
 
+    //the attack object creator
+    this.timetoprime = 10;
 
-		this.actionname = actionname; //the name of this action
-
-	}
-
-
-	getname(){
-
-
-		return(this.actionname);
-	}
+    this.timetoexist = 10;
 
 
 
-
-	//the set thing that can create attacks
-	setcreatedattack(attackobjectcreator, distance, rotationtoattack){
-
-		this.distancetoattack = distance;
-		this.rotationtoattack = rotationtoattack;
-
-		this.doescreateattack = true;
-		this.attackobjectcreator = attackobjectcreator;
-
-	}
-
-	setselfbuffs(buff){
-		this.selfbuffsinflicted.addbuffs(buff);
-	}
-
-	getselfbuffs(){
-		return(this.selfbuffsinflicted);
-	}
-
-
-	setcreatedobject(objectcreator){
-
-		this.doescreateobject = true;
-		this.objectcreator = objectcreator;
-
-	}
+    //the buffs that this action inflicts on the user
+    this.selfbuffsinflicted = new EntitiesBuffs();
 
 
 
 
 
-	//wow, im really glad i had the foresight to make object creators a thing
-	//since it really helps here
+    //whether this action needs to use the object creator to create an object
+    this.doescreateobject = false;
 
-	//create the object this object creates and return it
-	getcreatedobject(){
+    //the distance that you create this object in front of you
+    this.distancetoobject = 1;
 
-		//i need to standardize the creation of my objects with my object creators
-		//to be called "createobject"
-		return(this.objectcreator.createobject());
+    this.rotationtoobject = Math.PI;
 
-	}
+    //object creator to create an object
+    this.objectcreator = null;
+
+    this.actionname = actionname; //the name of this action
+
+  }
+
+  getname() {
+
+   return (this.actionname);
+   }
+
+
+
+
+  //the set thing that can create attacks
+  setcreatedattack(attackobjectcreator, distance, rotationtoattack) {
+
+    this.distancetoattack = distance;
+    this.rotationtoattack = rotationtoattack;
+
+    this.doescreateattack = true;
+    this.attackobjectcreator = attackobjectcreator;
+
+  }
+
+  setselfbuffs(buff) {
+   this.selfbuffsinflicted.addbuffs(buff);
+  }
+
+  getselfbuffs() {
+   return (this.selfbuffsinflicted);
+  }
+
+	setcreatedobject(objectcreator) {
+
+    this.doescreateobject = true;
+    this.objectcreator = objectcreator;
+
+  }
+
+
+
+
+
+  //wow, im really glad i had the foresight to make object creators a thing
+  //since it really helps here
+
+  //create the object this object creates and return it
+  getcreatedobject(){
+
+   //i need to standardize the creation of my objects with my object creators
+   //to be called "createobject"
+   return(this.objectcreator.createobject());
+
+  }
 
 
 	//create an attack object and return it

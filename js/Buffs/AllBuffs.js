@@ -1,48 +1,50 @@
 class AllBuffs{
 
-	constructor(){
-		//the buffs on the character not tied to equipment
-		this.buffs = new EntitiesBuffs();
 
-		//the buffs on the character not tied to equipment 
-		this.buffstoinflict = new EntitiesBuffs();
+  //a class that holds and manages all the status effects of each object
 
-		//where the equipment is held
-		//are identified by their "types"
-		//so you dont equip multiple ones of the same type
-		this.equipment = [];
-	}
+  constructor() {
+    //the buffs on the character not tied to equipment
+    this.buffs = new EntitiesBuffs();
 
+    //the buffs on the character not tied to equipment
+    this.buffstoinflict = new EntitiesBuffs();
 
-	equip(newweapon){
-		var displacedequipment = null;
-		for (var equipiter in this.equipment){
-			var curequip = this.equipment[equipiter];
-			if (curequip.gettype() == curequip.gettype()){
-				displacedequipment = curequip;
-				this.equipment[equipiter] = newweapon;
-			}
-		}
-		//if a weapon is displaced from this
-		//return it to be thrown on the ground
-		//otherwise, return Null
-		return(displacedequipment);
-	}
+    //where the equipment is held
+    //are identified by their "types"
+    //so you dont equip multiple ones of the same type
+    this.equipment = [];
+  }
 
-	//get the buffs that the character inflicts in total
-	getbuffstoinflict(){
-		return(this.buffstoinflict);
-	}
+  equip(newweapon) {
+    var displacedequipment = null;
+    for (var equipiter in this.equipment) {
+      var curequip = this.equipment[equipiter];
+      if (curequip.gettype() == curequip.gettype()) {
+        displacedequipment = curequip;
+        this.equipment[equipiter] = newweapon;
+      }
+    }
+    //if a weapon is displaced from this
+    //return it to be thrown on the ground
+    //otherwise, return Null
+    return (displacedequipment);
+  }
 
-	//get the buffs of the character
-	getbuffs(){
-		return(this.buffs);
-	}
+  //get the buffs that the character inflicts in total
+  getbuffstoinflict() {
+    return (this.buffstoinflict);
+  }
 
-	update(){
-		this.buffs.update();
+  //get the buffs of the character
+  getbuffs() {
+    return (this.buffs);
+  }
 
-		this.buffstoinflict.update();
-	}
+  update() {
+    this.buffs.update();
+
+    this.buffstoinflict.update();
+  }
 
 }

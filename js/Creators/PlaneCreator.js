@@ -1,138 +1,96 @@
-class  PlaneCreator{
+class PlaneCreator {
 
-	constructor(){
+  constructor() {
 
-
-		this.difficulty = 1;
-
-
-		//negative for how rural it is
-		//positive for how urban it is
-		this.urbanness = 0;
+    this.difficulty = 1;
 
 
+    //negative for how rural it isthis.side
+    //positive for how urban it is
+    this.urbanness = 0;
 
-		//what does a kingdom need a plane for
-
-		//the ways that I can create the plane
-
-		//need for crops
-
-		//need for fighters
-
-		//need for market
+    this.sizescalar = 1;
 
 
-	}
+    //this is going to be the kingdom that owns the objects on this plane on the planes initialization
+    this.kingdom = null;
 
 
-	//this function returns a blank plane
-	createblankplane(xsize, ysize){
+  }
+
+  setkingdom(kingdom) {
+
+    this.kingdom = kingdom;
+
+  }
 
 
-
-	}
+  createfarmingplane() {
+    //what parameters of creation does a farming plane have?
 
 
 
 
-	createfarmingplane(){
-		//what parameters of creation does a farming plane have?
-
-		//create a new plane of size x and y
-		var newplane = new Plane(25*this.sizescalar, 25*this.sizescalar);
+    //create a new plane of size x and y
+    var newplane = new Plane(50 * this.sizescalar, 50 * this.sizescalar);
 
 
-		//create a new entity creator
-		var entitycreator = new EntityCreator();
+    var farmercreator = new ObjectCreator();
 
-		//set the creator for farmers
-		entitycreator.setfarmer();
+    console.log(farmercreator);
 
-		//newplane.passinentity(entitycreator.createguy(), 15, 20);
-		//newplane.passinentity(entitycreator.createguy(), 10, 15);
-		//newplane.passinentity(entitycreator.createguy(), 3, 3);
+    farmercreator.setfarmer();
 
-		//create borders along for the walls
-		newplane.passinentity(entitycreator.createwall(25*this.sizescalar,1*this.sizescalar),0, 0);
-		newplane.passinentity(entitycreator.createwall(1*this.sizescalar,25*this.sizescalar),0, 0);
-		newplane.passinentity(entitycreator.createwall(1*this.sizescalar,25*this.sizescalar),25*this.sizescalar, 0);
-		newplane.passinentity(entitycreator.createwall(25*this.sizescalar,1*this.sizescalar),0, 25*this.sizescalar);
+    var newobject = farmercreator.createobject();
 
+    newplane.passinobject(newobject, 12, 12);
 
-		//returns the plane
-		return(newplane);
-	}
+    for (var x = 1; x < 3 ; x += 1){
+      for (var y = 1; y < 3 ; y += 1){
+        var newobject = farmercreator.createobject();
+        newplane.passinobject(newobject, (x+10) * 2, (y+10) * 2);
+
+      }
+    }
 
 
 
 
 
-		createmarketplane(){
-			var newplane = new Plane(20*this.sizescalar, 20*this.sizescalar);
+
+    //creating the borders
 
 
-			//create a new entity creator
-			var entitycreator = new EntityCreator();
+    var entitycreator = new ObjectCreator();
+    entitycreator.setwall(49.999 * this.sizescalar, 1 * this.sizescalar);
+    //create borders along for the walls
+    newplane.passinobject(entitycreator.createobject(), 0, -1 * this.sizescalar);
 
-			//set the creator for farmers
-			entitycreator.setfarmer();
-
-
-			//put 7 farmers in the plane
-			newplane.passinentity(entitycreator.createguy());
-			newplane.passinentity(entitycreator.createguy());
-			newplane.passinentity(entitycreator.createguy());
-			newplane.passinentity(entitycreator.createguy());
-			newplane.passinentity(entitycreator.createguy());
-			newplane.passinentity(entitycreator.createguy());
-			newplane.passinentity(entitycreator.createguy());
-		}
+    var entitycreator = new ObjectCreator();
+    entitycreator.setwall(1 * this.sizescalar, 49.99 * this.sizescalar);
+    //create borders along for the walls
+    newplane.passinobject(entitycreator.createobject(),  -1.01*this.sizescalar, 0);
 
 
+    var entitycreator = new ObjectCreator();
+    entitycreator.setwall(1 * this.sizescalar, 49.99 * this.sizescalar);
+    //create borders along for the walls
+    newplane.passinobject(entitycreator.createobject(),  50 * this.sizescalar, 0);
 
 
-			createcastleplane(){
-				var newplane = new Plane(20*this.sizescalar, 20*this.sizescalar);
-
-				//create a new entity creator
-				var entitycreator = new EntityCreator();
-
-				//set the creator for farmers
-				entitycreator.setfarmer();
-
-
-				//put 7 farmers in the plane
-				newplane.passinentity(entitycreator.createguy());
-				newplane.passinentity(entitycreator.createguy());
-				newplane.passinentity(entitycreator.createguy());
-				newplane.passinentity(entitycreator.createguy());
-				newplane.passinentity(entitycreator.createguy());
-				newplane.passinentity(entitycreator.createguy());
-				newplane.passinentity(entitycreator.createguy());
-			}
+    var entitycreator = new ObjectCreator();
+    entitycreator.setwall(49.99 * this.sizescalar, 1 * this.sizescalar);
+    //create borders along for the walls
+    newplane.passinobject(entitycreator.createobject(),  0, 50 * this.sizescalar);
 
 
 
-			createforestplane(){
-				var newplane = new Plane(20*this.sizescalar, 20*this.sizescalar);
-
-				//create a new entity creator
-				var entitycreator = new EntityCreator();
-
-				//set the creator for farmers
-				entitycreator.setfarmer();
+    //returns the plane
+    return (newplane);
+  }
 
 
-				//put 7 farmers in the plane
-				newplane.passinentity(entitycreator.createguy());
-				newplane.passinentity(entitycreator.createguy());
-				newplane.passinentity(entitycreator.createguy());
-				newplane.passinentity(entitycreator.createguy());
-				newplane.passinentity(entitycreator.createguy());
-				newplane.passinentity(entitycreator.createguy());
-				newplane.passinentity(entitycreator.createguy());
-			}
+
 
 
 }

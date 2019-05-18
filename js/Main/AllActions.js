@@ -4,55 +4,53 @@
 
 
 
-
-
-
-
-
-
 //an object that hold a list of all the action objects
 
 class ActionList{
 
-	constructor(){
+  constructor() {
 
-		//the list of actionobjects
-		this.actionobjectlist = [];
+    //the list of actionobjects
+    this.actionobjectlist = [];
 
-	}
+  }
 
+  addactionobject(actionobject) {
 
-	addactionobject(actionobject){
+    this.actionobjectlist.push(actionobject);
 
-		this.actionobjectlist.push(actionobject);
+  }
 
-	}
-
-	getactionobject(actionname){
-
+  getactionobject(actionname) {
 
 
-		//search through list of action objects and return the one with the matching name
 
-		for (var iterator in this.actionobjectlist){
+    //search through list of action objects and return the one with the matching name
 
-			var	actionobject = this.actionobjectlist[iterator];
+    for (var iterator in this.actionobjectlist) {
 
+      var	actionobject = this.actionobjectlist[iterator];
 
-			if (actionobject.actionname == actionname){
+      if (actionobject.actionname == actionname) {
 
-				return(actionobject);
-			}
+        return (actionobject);
+      }
 
-		}
+    }
 
-		//if no action object with the name was found
-		throw("no action with that name found");
-		return(false);
-	}
-
+    //if no action object with the name was found
+    throw('no action with that name found');
+    return (false);
+  }
 
 }
+
+
+
+
+
+
+
 
 
 //the main action list
@@ -60,60 +58,104 @@ var myactionlist = new ActionList();
 
 
 
-//stab quick and close forwards midriff
-var stab = new ActionObject(0,30,10,"stab");
-
-//create an attackobjectcreator to pass into the stab function
-var stabattackcreator = new AttackObjectCreator(3,20,25);
 
 
-//create a new buff thing
 
-var mybuffs = new EntitiesBuffs();
+//create an action object
+//uses the action list
 
-var statuseffect = new StatusEffect(220);
-
-statuseffect.setspeedeffect(20);
-
-mybuffs.addstatuseffect(statuseffect);
+function addobject(manacost, healthcost, cooldown, actionname, buffsselfapplied, isattack, distance, rotationtoattack, damagedone, timetoprime, timetoexpire, buffsofattack) {
 
 
-stabattackcreator.givebuffstoinflict(mybuffs);
 
+  //create the action object
+  var actionobject = new ActionObject(manacost, healthcost, cooldown, actionname);
 
-stab.setcreatedattack(stabattackcreator, 0, Math.PI/9);
-
-
-//add it to the list of actions
-myactionlist.addactionobject(stab);
+  //set the self buff as the one given
+  actionobject.setselfbuffs(buffsselfapplied);
 
 
 
 
-//create healing aura spell
-var healing = new ActionObject(10,0,60,"self heal aura");
-
-var thebuff = new EntitiesBuffs();
-
-var healingstatus = new StatusEffect(60*10);
-
-healingstatus.setregen(0.1);
-
-thebuff.addstatuseffect(healingstatus);
-
-healing.setselfbuffs(thebuff);
 
 
-myactionlist.addactionobject(healing);
+  //the status effects that the attack gives to its target
+  //buffsofattack
+
+  //the status effect applied to the user of the attack
+  //buffsselfapplied
 
 
 
+  //if there's an attack component to the action
+  if (isattack != null) {
+    /*
 
-//create wall spell
+    //create the attackobjectcreator
+    var attackobjectcreator = new AttackObjectCreator(damagedone, timetoprime, timetoexpire);
 
-//var castwall = new ActionObject(0,0,2,"castwall");
+    //set the buffs for its attack to inflict
+    attackobjectcreator.givebuffstoinflict(buffsofattack);
 
-//var wallcreator = new EntityCreator.createwall()
+    //set the attack creator for the action
+    actionobject.setcreatedattack(attackobjectcreator, distance, rotationtoattack);
+    */
+
+    var attackobjectcreator = new ObjectCreator();
+
+    attackobjectcreator.setcreatedattack(damagedone, timetoprime, timetoexpire);
+
+    attackobjectcreator.givebuffstoinflict(buffsofattack);
+
+    actionobject.setcreatedattack(attackobjectcreator, distance, rotationtoattack);
+
+  }
+
+
+  //add the actionobject to the actionobject list
+  myactionlist.addactionobject(actionobject);
+
+}
+
+
+//the speed buff object for the stab attack
+
+speedeffect = new StatusEffect(15);
+speedeffect.setspeedeffect(-6);
+
+longspeedeffect = new StatusEffect(100);
+longspeedeffect.setspeedeffect(0);
+
+speedbuff = new EntitiesBuffs();
+speedbuff.addstatuseffect(speedeffect);
+speedbuff.addstatuseffect(longspeedeffect);
+
+//adding a stab
+addobject(0, 0, 40, 'stab', speedbuff, true, 3, 0, 30, 0, 1, null);
+
+
+
+//the regen buff for the regen effect
+regeneffect = new StatusEffect(100);
+regeneffect.setregen(0.5);
+
+regenbuff = new EntitiesBuffs();
+regenbuff.addstatuseffect(regeneffect);
+
+//adding the self regen
+addobject(10, 0, 10, 'self regen', regenbuff, true, 2, 0, 50, 0, 200, null);
+
+
+
+
+
+//create destructible wall spell
+
+//create wall entity creator
+
+
+
+
 
 
 

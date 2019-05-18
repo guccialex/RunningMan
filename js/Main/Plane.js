@@ -1,637 +1,368 @@
-class Plane{
+class Plane {
 
-	constructor(xsize, ysize){
+  constructor(xsize, ysize) {
 
+    //the object lists needed
+    this.objandposlist = new ObjandPosList();
 
-		//the object lists needed
 
-		//the list of objects in this plane
-		this.objandpos = new ObjandPosList();
-		//will be run into
-		this.tangible = new ObjandPosList();
-		//will take attacks
-		this.attackable =  new ObjandPosList();
-		//the drops on this plane
-		this.drops =  new ObjandPosList();
-		//all attack objects
-		this.attackobjects =  new ObjandPosList();
-		//all mobile objects
-		this.mobileobjects =  new ObjandPosList();
-		//all visible objects
-		this.visibleobjects =  new ObjandPosList();
+    //size of this map
+    //really should create on construction of border objects around it
+    this.xsize = xsize;
+    this.ysize = ysize;
 
+    //the setting this object is in
+    this.setting = null;
 
 
-		//the proportion of control that each side has over this plane
-		//calculated by the amount of objects of each side that are on this plane
-		this.control = [["kingdom1", 0.5], ["myside", 0.5]];
+    //the mesh of this plane
+    this.geometry = new THREE.BoxGeometry(this.xsize, this.ysize, 0.05);
+    this.material = new THREE.MeshBasicMaterial();
 
+    var loader = new THREE.TextureLoader();
+    this.material = new THREE.MeshBasicMaterial({
+      map: loader.load('https://threejsfundamentals.org/threejs/resources/images/wall.jpg'),
+    });
+    this.planemesh = new THREE.Mesh(this.geometry, this.material);
 
-		//size of this map
-		//really should create on construction of border objects around it
-		this.xsize = xsize;
-		this.ysize = ysize;
+    //move it down and to the right half its size so its rendered right
+    this.planemesh.position.x = this.xsize / 2;
+    this.planemesh.position.y = this.ysize / 2;
+  }
 
 
+  //methods
+  /*
 
-		this.geometry = new THREE.BoxGeometry( this.xsize, this.ysize, 0.05 );
-		this.material = new THREE.MeshBasicMaterial();
+  passinobject(object, xposition, yposition)
+  removeobject(object)
+  updateposition(object, direction, distance)
+  getposition(object)
+  getcenterposition(object)
+  addfromperspective(perspectiveobject, object, distance, rotationamount)
+  getvisiblemeshs()
+  updatelists()
+  update()
+  updaterender()
 
-		this.planemesh  = new THREE.Mesh( this.geometry, this.material );
+  */
 
-		//move it down and to the right half its size so its rendered right
-		this.planemesh.position.x = this.xsize /2;
-		this.planemesh.position.y = this.ysize /2;
+  //set the setting this plane is in
+  setsetting(setting) {
+    this.setting = setting;
+  }
 
-		//find out how rendering works and how to pass it through
-		//this.scene.push(this.planemesh);
-	}
+  //get the setting this plane is in
+  getsetting() {
+    return (this.setting);
+  }
 
 
-	//methods
-	/*
+  //given a shape, get the objects in the plane in that shape
+  //takes in either a vertex list, or an xandy size as determined by the shapetype variable
+  getobjectinshape(xandypos, shapetype, vertexlistorxandysize, rotation, type) {
 
-	setsetting(setting)
-	passinobject(object, xposition, yposition)
-	removeobject(object)
-	updateposition(object, direction, distance)
-	getposition(object)
-	getcenterposition(object)
-	addfromperspective(perspectiveobject, object, distance, rotationamount)
-	getvisiblemeshs()
-	updatelists()
-	update()
-	updaterender()
+    var objectsinshape = this.objandposlist.getshapeintersect(xandypos, shapetype, vertexlistorxandysize, rotation, type);
 
-	*/
+    return (objectsinshape)
+  }
 
 
 
 
-	//setters for this objects plane and floor
-	setsetting(setting){
+  //add an object into this plane, checks if it does
+  passinobject(object, xposition, yposition) {
 
-		//set this variables setting
-		this.setting = setting;
+    //a check if it was passed in right
+    if (xposition == null) {
+      throw ('here');
+    }
 
+    //if this isnt tangible
+    if (object.getistangible() == false) {
 
-		var listofobjects = this.objandpos.getlist();
+      //put it in the objandposlist
+      this.objandposlist.addobject(object, [xposition, yposition]);
 
-		//set the setting of each object inside to this setting
-		for (var curobj in listofobjects){
-			listofobjects[curobj].getobject().setsetting(setting);
-		}
-	}
+      //give it this plane
+      object.setplane(this);
 
+      //and this setting
+      object.setsetting(this.setting);
 
 
+      //it was passed in
+      return (true);
 
-	passinobject(object, xposition, yposition){
-		this.objandpos.addobject(object, [xposition, yposition]);
+    } else {
 
-		if (xposition == null){
-			throw ("here");
-		}
+      //add the object here
+      this.objandposlist.addobject(object, [xposition, yposition]);
 
-		//give it this plane
-		object.setplane(this);
 
-		//and this setting
-		object.setsetting(this.setting);
-	}
 
+      //check if it intersects with the tangibles
+      if (this.objandposlist.doesintersect(object, "tangible")) {
+        //if it does remove it from here, and return false
+        this.objandposlist.removeobject(object);
+        return (false);
+      }
 
-	//remove this object from the plane
-	removeobject(object){
 
-		//remove the object from the main list
-		this.objandpos.removeobject(object);
+      //give it this plane
+      object.setplane(this);
 
-		//and update the lists to reflect its removal
-		this.updatelists();
-	}
+      //and this setting
+      object.setsetting(this.setting);
 
+      return (true);
 
+    }
 
+  }
 
-	updateposition(object, direction, distance){
 
-		//get the object, its direction and its distance
-		//and return whether this proposed new position will be able to go there
 
-		//get the object in the list
-		var topleftxandy = this.objandpos.getpos(object);
+  //remove this object from the plane
+  removeobject(object) {
 
-		//console.log("old");
-		//console.log(topleftxandy);
+    //remove the object from the main list
+    this.objandposlist.removeobject(object);
 
-		//get the new topleftx & y positions
-		topleftxandy[0] += direction[0] *distance;
+  }
 
-		topleftxandy[1] += direction[1] *distance;
 
+  //update the position of an object already in this plane
+  updateposition(object, direction, distance) {
 
+    //get the object, its direction and its distance
+    //and return whether this proposed new position will be able to go there
 
-		//see if this object and its new position intersect with any object in tangible
+    //if the object isnt tangible
+    if (object.istangible == false) {
 
-		if (this.tangible.doesintersect(object, topleftxandy) == false){
+      //just update its position
+      this.objandposlist.setpos(object, topleftxandy);
 
-			this.objandpos.setpos(object, topleftxandy);
+      //return that it updates successfully
+      return (true);
 
-		}
-		else{
+    }
+    //if it is tangible
+    else {
 
-			//console.log("collided");
+      //get the position of the object (it has to be in the tangible list, or something went very wrong)
+      var oldxandypos = this.objandposlist.getpos(object, "tangible");
 
-			return(false);
-		}
+      var newxandypos = [0, 0];
 
-	}
+      //get the new position you're trying to move it to
+      newxandypos[0] = oldxandypos[0] + direction[0] * distance;
 
+      newxandypos[1] = oldxandypos[1] + direction[1] * distance;
 
 
-	//return the position of the object in the plane
-	getposition(object){
+      //update the objects position in the plane
+      this.objandposlist.setpos(object, newxandypos);
 
-		return(this.objandpos.getpos(object));
 
-	}
+      //if it doesnt intersect, then return true
+      if (this.objandposlist.doesintersect(object, "tangible") == false) {
+        return (true);
+      }
+      //if it doesnt intersect with any tangible, revert it to its old pos, and return false
+      else {
+        //update the objects position in the plane
+        this.objandposlist.setpos(object, oldxandypos);
 
+      }
+    }
 
+  }
 
 
-	getcenterposition(object){
 
+  //return the position of the object in the plane
+  getposition(object) {
 
-		var topleftxandy = this.objandpos.getpos(object);
+    return (this.objandposlist.getpos(object, "all"));
 
+  }
 
-		//add half of its size to each of its dims so that it
-		topleftxandy[0] += object.getxsize()/2;
+  getcenterposition(object) {
 
-		topleftxandy[1] += object.getysize()/2;
+    var topleftxandy = this.objandposlist.getpos(object, "all");
 
+    //add half of its size to each of its dims so that it
+    topleftxandy[0] += object.getxsize() / 2;
 
-		return(topleftxandy);
-	}
+    topleftxandy[1] += object.getysize() / 2;
 
+    return (topleftxandy);
+  }
 
 
-	//add an object into the scene using the object creating it
-	//the distance from the object creating it, and the rotation to the left/right/behind
-	//of the object
-	addfromperspective(perspectiveobject, object, distance, rotationamount){
 
-		//get the position of the center of the object
-		var perspectiveposcenter = this.getcenterposition(perspectiveobject);
+  //add an object into the scene using the object creating it
+  //the distance from the object creating it, and the rotation to the left/right/behind
+  //of the object
+  addfromperspective(perspectiveobject, object, distance, rotationamount) {
 
+    //get the position of the center of the object
+    var perspectiveposcenter = this.getcenterposition(perspectiveobject);
 
-		//get the direction of the object
-		var perspectivedirection = perspectiveobject.getdirection();
 
+    //get the direction of the object
+    var perspectivedirection = perspectiveobject.getdirection();
 
-		//rotate the perspective direction by the rotation array to get the total rotation
 
-		var newperspx = Math.cos(rotationamount)*perspectivedirection[0] - Math.sin(rotationamount) * perspectivedirection[1];
+    //rotate the perspective direction by the rotation array to get the total rotation
 
-		var newperspy =	Math.sin(rotationamount)*perspectivedirection[0] + Math.cos(rotationamount) * perspectivedirection[1];
+    var newperspx = Math.cos(rotationamount) * perspectivedirection[0] - Math.sin(rotationamount) * perspectivedirection[1];
 
+    var newperspy = Math.sin(rotationamount) * perspectivedirection[0] + Math.cos(rotationamount) * perspectivedirection[1];
 
-		//the xdistance from the perspective of the object
-		var perspxvector = newperspx * distance;
 
-		var perspyvector = newperspy * distance;
+    //the xdistance from the perspective of the object
+    var perspxvector = newperspx * distance;
 
+    var perspyvector = newperspy * distance;
 
-		//the center of the object passed is the distance from the object creating its center
 
-		//the real xposition is the center plus the persp distance vector, minus half the xsize of the input object
-		var xposition = perspxvector + perspectiveposcenter[0] - object.getxsize()/2;
+    //the center of the object passed is the distance from the object creating its center
 
-		var yposition = perspyvector + perspectiveposcenter[1] - object.getysize()/2;
+    //the real xposition is the center plus the persp distance vector, minus half the xsize of the input object
+    var xposition = perspxvector + perspectiveposcenter[0] - object.getxsize() / 2;
 
+    var yposition = perspyvector + perspectiveposcenter[1] - object.getysize() / 2;
 
 
-		//if the object is tangible and intersecting with any tangible object,
-		//reduce the distance that you want to put the object in at and try again
-		//and try again until it becomes 0, then return that you cant do it
-		if (object.getistangible()){
 
-			if (this.tangible.doesintersect(object, [xposition,yposition])){
+    //i have an x position, an object, and want to see if it can be put in
 
-				//readjust placement in the scene until you can readjust no more, then return false
-				return(false);
 
-			}
+    //try to pass in the object and return what it returns
 
-			else{
-				//returns "false"
-				//which means nothing intersects
-				//so alls good
-			}
-		}
+    return(this.passinobject(object, xposition, yposition));
 
 
+  }
 
-		//then add it to the main list of objects and update all the object lists
-		this.objandpos.addobject(object, [xposition,yposition]);
 
+  //return the list of meshs
+  getvisiblemeshs() {
+    var listofmeshs = [];
 
-		//update all the lists in the scene
-		this.updatelists();
+    //get a list of objects in the plane
+    var listofobjs = this.objandposlist.getposlist("all");
 
-	}
 
+    for (var curobject in listofobjs) {
 
-	//return the list of meshs
-	getvisiblemeshs(){
-		var listofmeshs = [];
+      //get the current object
+      var curmesh = listofobjs[curobject].getobject();
 
-		//get a list of objects in the plane
-		var listofobjs = this.objandpos.getlist();
+      //for that object, update it's mesh
+      curmesh.updatemesh();
 
-		for (var curobject in listofobjs){
-			//get the current object
-			var curmesh = listofobjs[curobject].getobject();
+      //update the position of the mesh
+      curmesh.updatemeshpos(listofobjs[curobject].getpos()[0], listofobjs[curobject].getpos()[1]);
 
-			//update the position of the mesh
-			curmesh.updatemeshpos(listofobjs[curobject].getpos()[0],listofobjs[curobject].getpos()[1]);
+      //get the mesh group of the object
+      curmesh = curmesh.getmesh();
 
-			//get the mesh of the object
-			curmesh = curmesh.getmesh();
+      //push it into the list of meshs
+      listofmeshs.push(curmesh);
+    }
 
-			//add it to the list of meshs
-			listofmeshs.push(curmesh)
-		}
 
+    //add this plane's mesh to the listofmeshs
+    listofmeshs.push(this.planemesh);
 
-		//add this plane's mesh to the listofmeshs
-		listofmeshs.push(this.planemesh);
+    return (listofmeshs);
+  }
 
-		return(listofmeshs);
-	}
+  updatelists() {
 
+    //update the lists
+    this.objandposlist.updatelists();
 
-	updatelists(){
-		//set all the lists empty
+  }
 
-		//will be run into
-		this.tangible = new ObjandPosList();
+  update() {
 
-		//will take attacks
-		this.attackable = new ObjandPosList();
 
-		//the drops on this plane
-		this.drops = new ObjandPosList();
+    //update all the lists so that my lists are valid
+    this.updatelists();
 
-		//all attack objects
-		this.attackobjects = new ObjandPosList();
 
-		//all mobile objects
-		this.mobileobjects = new ObjandPosList();
 
-		//update all of the object lists
 
 
-		//get all the objects in the plane
-		var allobjects = this.objandpos.getlist();
 
 
-		//go through the keys of these list which are the objects
-		for (var curobjitr in allobjects){
+    //call update on all the objects
+    var allobjects = this.objandposlist.getlist("all");
 
-			var curobj = allobjects[curobjitr].getobject();
+    for (var curobjitr in allobjects) {
 
-			if (curobj.getisethral() == false){
-				this.attackable.passinobject(allobjects[curobjitr]);
-			}
+      allobjects[curobjitr].update();
 
-			if (curobj.getistangible() == true){
+    }
 
-				this.tangible.passinobject(allobjects[curobjitr]);
-			}
 
-			if (curobj.getispickupable() == true){
-				this.drops.passinobject(allobjects[curobjitr]);
-			}
+    //remove all expired objects
+    for (var curobjitr in allobjects) {
+      if (allobjects[curobjitr].isexpired == true) {
 
-			if (curobj.getdoesdamage() == true){
-				this.attackobjects.passinobject(allobjects[curobjitr]);
-			}
+        this.removeobject(allobjects[curobjitr]);
+      }
+    }
 
-			if (curobj.getismobile() == true){
-				this.mobileobjects.passinobject(allobjects[curobjitr]);
-			}
-		}
-	}
 
 
+    //gives the list of attack objects
+    var allattackobjects = this.objandposlist.getlist("attack");
 
 
+    //console.log(allattackobjects);
 
+    //check for intersections between attack objects and attackables
+    for (var curattackitr in allattackobjects) {
 
-	update(){
 
-		//update all the lists so that my lists are valid
-		this.updatelists();
+      var curattack = allattackobjects[curattackitr];
 
-		//call update on all the objects
-		var allobjects = this.objandpos.getlist();
+      //if an attack lands on something
+      if (this.objandposlist.doesintersect(curattack, "attackable")) {
 
+        //get that attackable thing
+        var listofattacked = this.objandposlist.getintersect(curattack, "attackable");
 
-		for (var curobjitr in allobjects){
-			allobjects[curobjitr].getobject().update();
-		}
+        //for each of the things attacked, call the landed attack function thing
 
-		//remove all expired objects
-		for (var curobjitr in allobjects){
-			if (allobjects[curobjitr].getobject().isexpired == true){
+        for (var attacked = 0; attacked < listofattacked.length; attacked += 1) {
 
-				this.removeobject(allobjects[curobjitr].getobject());
-			}
-		}
+          curattack.landedattack(listofattacked[attacked]);
 
-		//update the list to remove expired objects from all lists
-		this.updatelists();
+        }
+      }
+    }
+  }
 
 
-		//gives the object and the position
-		var allattackobjects = this.attackobjects.getlist();
 
-		var allattackable = this.attackable.getlist();
 
+  //i dont know when or where i use this
+  /*
+  updaterender(){
+   var allobjects = this.objandpos.getlist();
 
-		//check for intersections between attack objects and attackables
-		for (var curattackitr in allattackobjects){
-
-			var curattack = allattackobjects[curattackitr];
-
-			//get what objects this attack intersects with
-			for (var curattackableitr in allattackable){
-
-				var curattackable = allattackable[curattackableitr];
-
-				if (curattack.doesobjandposintersect(curattackable)){
-
-					curattack.storedobject.landedattack(curattackable.storedobject);
-
-				}
-			}
-		}
-	}
-
-
-	updaterender(){
-		var allobjects = this.objandpos.getlist();
-
-		//call update on all the charachter objects
-		for (var curobjitr in allobjects){
-			allobjects[curobjitr].getobject().updaterender();
-		}
-	}
-
-
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//a object that holds a group of objects and positions for that object
-class ObjandPosList{
-
-	constructor(){
-		//the dictionary of the objects
-		//mapping the object to its corresponding objandpos object
-		this.objsandpos = [];
-
-		//array of [object, objectpositionobject]
-
-	}
-
-	hasobject(object){
-
-		//see if the object is in the plane
-
-		for (var curobjiter in this.objsandpos){
-
-			if (object === this.objsandpos[curobjiter]){
-				return(true);
-			}
-		}
-
-		return(false);
-
-	}
-
-	passinobject(objandposobject){
-
-		this.objsandpos.push(objandposobject);
-	}
-
-	addobject(object, xposandypos){
-		var newelement = new ObjandPos(object, xposandypos[0],xposandypos[1]);
-
-		this.objsandpos.push(newelement);
-	}
-
-	getpos(object){
-
-		//get the pos object from this list
-		for (var eachpair in this.objsandpos){
-
-			if (this.objsandpos[eachpair].getobject() === object){
-
-				return(this.objsandpos[eachpair].getpos());
-
-			}
-		}
-
-		//if the object isnt found
-		throw("object not found in list");
-
-	}
-
-	getlist(){
-
-		//return the array of objects and their values
-		return(this.objsandpos);
-	}
-
-	setpos(object, xposandypos){
-
-		//find the object than give it a new pos
-		for (var curobjiter in this.objsandpos){
-			if (object === this.objsandpos[curobjiter].getobject()){
-				this.objsandpos[curobjiter].setpos(xposandypos[0],xposandypos[1]);
-			}
-		}
-
-	}
-
-	removeobject(object){
-
-		//find the object
-
-		for (var curobjiter in this.objsandpos){
-
-			if (object === this.objsandpos[curobjiter].getobject()){
-
-				this.objsandpos.splice(curobjiter,1);
-
-				//return to end loop
-				return(true);
-			}
-		}
-	}
-
-	//does this object at this pos intersect with anything in the list
-	doesintersect(object, topleft){
-
-
-		//create a temporary objandpos object for object detection
-		var checkingobject = new ObjandPos(object, topleft[0], topleft[1]);
-
-
-		for (var curobjiter in this.objsandpos){
-
-			//if they're the same object, skip it
-			if (this.objsandpos[curobjiter].getobject() === object){
-
-				//skip
-			}
-			else{
-
-				if (this.objsandpos[curobjiter].doesobjandposintersect(checkingobject))
-				{
-					return(true);
-				}
-			}
-
-		}
-
-		//if no colissions are found at the end
-		return(false);
-	}
-}
-
-
-
-
-
-
-
-
-class ObjandPos{
-
-	constructor(object, xpos,ypos){
-
-		this.storedobject = object;
-
-		this.xpos = xpos;
-
-		this.ypos = ypos;
-
-	}
-
-
-	getobject(){
-
-		return(this.storedobject);
-	}
-
-
-	//given another objandpos object, see if it intersects with this one
-	doesobjandposintersect(objandpos){
-
-
-		//get the pos of the objects passed in
-		var object1topx = this.xpos;
-
-		var object1topy = this.ypos;
-
-		var object1botx = this.xpos+this.storedobject.xsize;
-
-		var object1boty = this.ypos+this.storedobject.ysize;
-
-
-
-		//the object being checked against in the list
-		var object2topx = objandpos.xpos;
-
-		var object2topy = objandpos.ypos;
-
-		var object2botx = objandpos.xpos + objandpos.storedobject.xsize;
-
-		var object2boty = objandpos.ypos + objandpos.storedobject.ysize;
-
-
-
-		//if my object1 is to the right of object2
-		if (object1topx > object2botx){
-			//no colission detected
-			return(false);
-		}
-		//if object2 is to the right of object1
-		else if (object2topx > object1botx){
-			//no colission detected
-			return(false);
-		}
-		//if object1 is lower than object2
-		else if (object1topy > object2boty){
-			//no colission detected
-			return(false);
-		}
-		//if object2 is lower than object1
-		else if (object2topy > object1boty){
-			//no colission detected
-			return(false);
-		}
-		else
-		{
-
-			//if there are intersections
-			return(true);
-		}
-
-
-
-	}
-
-
-	setpos(xpos,ypos){
-		this.xpos = xpos;
-		this.ypos = ypos;
-	}
-
-
-	getpos(){
-		return([this.xpos,this.ypos]);
-	}
-
-
+   //call update on all the charachter objects
+   for (var curobjitr in allobjects){
+    allobjects[curobjitr].updaterender();
+   }
+  }
+  */
 
 }

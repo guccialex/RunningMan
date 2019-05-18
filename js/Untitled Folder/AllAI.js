@@ -1,29 +1,22 @@
 class AllAI{
 
-
-	constructor(){
-
-
-		//the controllers for all the NPC objects
-
-		this.AIcontrollers = [];
+  constructor() {
 
 
-	}
+    //the controllers for all the NPC objects
 
+    this.AIcontrollers = [];
 
-	update(){
+  }
 
+  update() {
 
-		for (AIcontroller in this.AIcontrollers){
+    for (AIcontroller in this.AIcontrollers) {
 
-			this.AIcontrollers[AIcontroller].update();
+      this.AIcontrollers[AIcontroller].update();
 
-		}
+    }
 
-
-	}
-
-
+  }
 
 }

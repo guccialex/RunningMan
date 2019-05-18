@@ -1,144 +1,161 @@
-class AIController{
+//the controller for the ai of an object
 
-	//each object has its own AI controlling it
+class AIController {
 
-	constructor(thisguy, plane){
+  //each object has its own AI controlling it
 
-		this.thisguy = thisguy;
+  constructor(thisguy) {
 
-		this.attacktarget = null;
+    this.thisguy = thisguy;
 
-		this.plane = plane;
+    this.attacktarget = null;
 
+    //a list of all objects they see
+    this.sight = [];
 
-		//a list of all objects they see
-		this.sight = [];
-	}
+    this.vertexlist = null;
 
+    this.rotation = 0;
+  }
 
-	getsight(){
+  //update the this.sight to be a list of all the objects in this objects sight
+  getsight() {
 
-		//set this objects sight as a list of all objects it sees
-		//in its sight range
+    //get the position of this object
+    var pos = this.thisguy.getposonplane();
+    var xpos = pos[0];
+    var ypos = pos[1];
 
+    //get the sight ranges of this object
+    var widesight = this.thisguy.widesight;
+    var tallsight = this.thisguy.tallsight;
 
-		//get sight boxes from the object
-		//use that direction to determine sight boxes
+    //now get a vertex shape for the triangle of its vision
+    this.vertexlist = [
+      [0, 0],
+      [tallsight, -widesight/2],
+      [tallsight, widesight]
+    ];
 
-		var sightboxes = getboxes(this.thisguy.direction, this.thisguy.xposition, this.thisguy.yposition, this.thisguy.widesight, this.thisguy.tallsight);
+    //get the direction of the object for the rotation of the vertex
+    var dir = this.thisguy.getdirection();
 
+    //taken from https://stackoverflow.com/questions/2676719/calculating-the-angle-between-the-line-defined-by-two-points
+    var theta_radians = Math.atan2(dir[1], dir[0]);
 
-		//set all the objects I see
-		this.sight = this.plane.theintersections(sightboxes[0],sightboxes[1],sightboxes[2],sightboxes[3]);
+    this.rotation = theta_radians;
 
-	}
 
+    //get the plane of the object
+    var theplane = this.thisguy.getplane();
 
+    //set all the objects I see
+    this.sight = theplane.getobjectinshape(pos, "nonallignedbox", this.vertexlist, this.rotation, "all");
 
-	getdistance(){
-		//get distance between thisguy and attacktarget
+  }
 
-		xdistance = this.attacktarget.xposition - this.thisguy.xposition;
+  //get distance between thisguy and attacktarget
+  getdistance() {
 
-		ydistance = this.attacktarget.yposition - this.thisguy.yposition;
+    var targetpos = this.attacktarget.getposonplane()
+    var myguypos = this.thisguy.getposonplane();
 
+    var xdistance = targetpos[0] - myguypos[0];
 
-		realdistance =  Math.sqrt(xdistance*xdistance + ydistance*ydistance);
+    var ydistance = targetpos[1] - myguypos[1];
 
+    var realdistance = Math.sqrt(xdistance * xdistance + ydistance * ydistance);
 
-		return (realdistance);
-	}
+    return (realdistance);
+  }
 
+  updatedirection() {
 
-	updatedirection(){
+    var targetpos = this.attacktarget.getposonplane()
+    var myguypos = this.thisguy.getposonplane();
 
+    var xdistance = targetpos[0] - myguypos[0];
 
-		xdistance = this.attacktarget.xposition - this.thisguy.xposition;
+    var ydistance = targetpos[1] - myguypos[1];
 
-		ydistance = this.attacktarget.yposition - this.thisguy.yposition;
+    this.thisguy.setdirection([xdistance, ydistance]);
 
+  }
 
-		//now figure out what values to give the xdirection and ydirection
-		//so that they absolute sum up to 1
+  giveaction() {
 
+    //decide on what actions to perform
 
-		//now set direction of the charachter, which will automatically be 
-		//madae so it sums to 1
+    //right now, its just that if he's close to
+    //the target, give him the stab action
 
-		this.thisguy.setdirection(xdistance,ydistance);
+  }
 
-	}
+  updatetarget() {
 
 
-	giveaction(){
+    //go through objects seen, and run towards and attempt to attack
+    //the closest enemy
 
-		//decide on what actions to perform
+    //this commented out thing counts how many times this occurs per second
 
-		//right now, its just that if he's close to
-		//the target, give him the stab action
 
+    var seesatarget = false;
 
-	}
+    //it shouldnt just not change the attack target if none is found
+    //it should remove the old one from being the target if like, with even better vision, it's still not visible
 
+    for (var curint in this.sight) {
 
-	updatetarget(){
+      var curobject = this.sight[curint];
 
 
-		//go through objects seen, and run towards and attempt to attack
-		//the closest enemy
+      //should be if the side is not its, rather than just my guy specifically
+      //and really should be a stored list of the kingdoms which they get aggroed at
+      //which can be changed from their kingdom of course
 
-		for (var curobject in this.sight){
+      if (curobject.getside() == "mykingdom") {
+        this.attacktarget = curobject;
 
-			if (curobject.getside() != this.thisguy.getside()){
+        seesatarget = true;
+      }
 
-				this.attacktarget = curobject;
+    }
 
+    if (seesatarget == false) {
+      this.attacktarget = null;
+    }
 
-			}
+  }
 
-		}
+  update() {
 
-	}
+    //get list of objects around you
+    this.getsight();
 
 
-	update(){
+    //update target to attack
+    this.updatetarget();
 
-		//get list of objects around you
-		this.getsight();
+    //if this AI has a target
+    if (this.attacktarget != null) {
+      //update direction to the target
+      this.updatedirection();
 
 
-		//update target to attack
-		this.updatetarget();
+      //if the target is some amount close
 
+      if (this.getdistance() < 3) {
 
-		//update direction to the target
-		this.updatedirection();
 
+        //prepare attack
+        this.thisguy.giveaction("stab");
+      }
+    }
 
-		//if the target is some amount close
 
-		if (this.getdistance < 4){
 
-
-			//prepare attack
-			this.thisguy.giveaction("stab");
-		}
-
-
-
-	}
+  }
 
 
 }
-
-
-
-
-
-
-
-
-
-
-
-

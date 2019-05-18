@@ -1,155 +1,158 @@
 class EntitiesBuffs{
 
-	constructor(){
-		this.listofbuffs = [];
-	}
+  //a class that holds and manages multiple status effects in it
 
-	//pass in a status effect to this buff
-	addstatuseffect(statuseffect){
-		//clone it and then add it
-		this.listofbuffs.push(statuseffect.clonegetthis());
-	}
+  constructor() {
+    this.listofbuffs = [];
+  }
 
-	//add the buffs as a copy
-	addbuffs(otherentitiesbuff){
-
-		//clone each buff in the other object and add them to this one
-		var tocopylistofbuffs = otherentitiesbuff.getbufflist();
+  //pass in a status effect to this buff
+  addstatuseffect(statuseffect) {
+    //clone it and then add it
+    this.listofbuffs.push(statuseffect.clonegetthis());
+  }
 
 
-		for (var currentbuff in tocopylistofbuffs){
-			this.addstatuseffect(tocopylistofbuffs[currentbuff]);
-		}
+  //add the buffs as a copy
+  addbuffs(otherentitiesbuff) {
 
-		//throw("where from");
-	}
+    //if its not nulls
 
-	/*
-	//return a clone of this object
-	clonegetthis(){
+    if (otherentitiesbuff != null) {
+      //clone each buff in the other object and add them to this one
+      var tocopylistofbuffs = otherentitiesbuff.getbufflist();
 
-		var currentbuff = null;
+      for (var currentbuff in tocopylistofbuffs) {
+        this.addstatuseffect(tocopylistofbuffs[currentbuff]);
+      }
+    }
 
-		var copiedentitiesbuffs = new EntitiesBuffs();
+  }
 
-		for (var currentbuff in this.listofbuffs){
+  /*
+  //return a clone of this object
+  clonegetthis(){
 
-			//clone and get each of the
-			currentbuff = this.listofbuffs[currentbuff].clonegetthis();
+   var currentbuff = null;
 
-			copiedentitiesbuffs.addstatuseffect(currentbuff);
-		}
+   var copiedentitiesbuffs = new EntitiesBuffs();
 
-		return(copiedentitiesbuffs);
-	}
-	*/
+   for (var currentbuff in this.listofbuffs){
 
-	//get a list of the buffs in this object
-	getbufflist(){
+    //clone and get each of the
+    currentbuff = this.listofbuffs[currentbuff].clonegetthis();
 
-		return(this.listofbuffs);
+    copiedentitiesbuffs.addstatuseffect(currentbuff);
+   }
 
-	}
+   return(copiedentitiesbuffs);
+  }
+  */
 
+  //get a list of the buffs in this object
+  getbufflist() {
 
+    return (this.listofbuffs);
 
-
-
-
-	//what happens every tick
-	update(){
-
-		//do a tick for each of the buffs
-		for (var buff in this.listofbuffs){
-			this.listofbuffs[buff].tick();
-		}
-
-		//remove the finished buffs
-		var buffinter = 0;
-		while(buffinter < this.listofbuffs.length){
-			//when the current buff is one that needs to be removed
-			if (this.listofbuffs[buffinter].isfinished()){
-				//remove the buff
-				this.listofbuffs.splice(buffinter, 1);
-				//reduce the buff count by one to accomodate the removed one
-				buffinter += -1
-			}
-			//increase buff counter
-			buffinter += 1;
-		}
-	}
+  }
 
 
 
 
 
 
+  //what happens every tick
+  update() {
+
+    //do a tick for each of the buffs
+    for (var buff in this.listofbuffs) {
+      this.listofbuffs[buff].tick();
+    }
+
+    //remove the finished buffs
+    var buffinter = 0;
+    while (buffinter < this.listofbuffs.length) {
+      //when the current buff is one that needs to be removed
+      if (this.listofbuffs[buffinter].isfinished()) {
+        //remove the buff
+        this.listofbuffs.splice(buffinter, 1);
+        //reduce the buff count by one to accomodate the removed one
+        buffinter += -1;
+      }
+      //increase buff counter
+      buffinter += 1;
+    }
+  }
 
 
-	//all the getters
-
-
-	//strength
-	//defense
-	//speed
-	//maxhp
-	//maxmana
-	//burn
-	//betrayl
-	//fast
-	//slow
-	//stop
-	//invul
-	//invis
-	//regen
-	//poison
-	//knockback
 
 
 
 
 
-	getstrengtheffect(){
-		var totalstrength = 0;
-		for (var buff in this.listofbuffs){
-			totalstrength += this.listofbuffs[buff].getstrengtheffect();
-		}
-		return(totalstrength);
-	}
+
+  //all the getters
 
 
-	getspeedeffect(){
-		var totalspeedeffect = 0;
-		for (var buff in this.listofbuffs){
-			totalspeedeffect += this.listofbuffs[buff].getspeedeffect();
-		}
-		return(totalspeedeffect);
-	}
+  //strength
+  //defense
+  //speed
+  //maxhp
+  //maxmana
+  //burn
+  //betrayl
+  //fast
+  //slow
+  //stop
+  //invul
+  //invis
+  //regen
+  //poison
+  //knockback
 
+  getstrengtheffect() {
+    var totalstrength = 0;
+    for (var buff in this.listofbuffs) {
+     totalstrength += this.listofbuffs[buff].getstrengtheffect();
+    }
 
-	getmaxhpeffect(){
-		var totalmaxhpeffect = 0;
-		for (var buff in this.listofbuffs){
-			totalmaxhpeffect += this.listofbuffs[buff].getmaxhpeffect();
-		}
-		return(totalmaxhpeffect);
-	}
+    return (totalstrength);
+  }
 
-	getmaxmanaeffect(){
-		var totalmaxmanaeffect = 0;
-		for (var buff in this.listofbuffs){
-			totalmaxmanaeffect += this.listofbuffs[buff].getmaxmanaeffect();
-		}
-		return(totalmaxmanaeffect);
-	}
+  getspeedeffect() {
+    var totalspeedeffect = 0;
+    for (var buff in this.listofbuffs) {
+     totalspeedeffect += this.listofbuffs[buff].getspeedeffect();
+    }
 
-	getdefenseeffect(){
-		var totaldefense = 0;
-		for (var buff in this.listofbuffs){
-			totaldefense += this.listofbuffs[buff].getdefenseeffect();
-		}
-		return(totaldefense);
-	}
+    return (totalspeedeffect);
+  }
+
+  getmaxhpeffect() {
+     var totalmaxhpeffect = 0;
+     for (var buff in this.listofbuffs) {
+      totalmaxhpeffect += this.listofbuffs[buff].getmaxhpeffect();
+     }
+
+   return (totalmaxhpeffect);
+  }
+
+  getmaxmanaeffect() {
+   var totalmaxmanaeffect = 0;
+   for (var buff in this.listofbuffs) {
+    totalmaxmanaeffect += this.listofbuffs[buff].getmaxmanaeffect();
+   }
+
+   return (totalmaxmanaeffect);
+  }
+
+  getdefenseeffect() {
+   var totaldefense = 0;
+   for (var buff in this.listofbuffs) {
+    totaldefense += this.listofbuffs[buff].getdefenseeffect();
+   }
+   return(totaldefense);
+  }
 
 	getbetrayl(){
 		for (var buff in this.listofbuffs){

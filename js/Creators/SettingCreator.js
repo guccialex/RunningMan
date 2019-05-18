@@ -2,155 +2,94 @@
 class SettingCreator{
 
 
-	//initialize a gamestate
-	//then return it
-	//once its been created, its the only
-	//reference that's needed to run the game
-	//is that what I want??????
+  //initialize a gamestate
+  //then return it
+  //once its been created, its the only
+  //reference that's needed to run the game
+  //is that what I want??????
 
-	//then return the setting
+  //then return the setting
 
+  constructor() {
 
-	constructor(){
 
+    //what parameters define a setting, on a scale of 1-10
+    this.richness = 4;
 
-		//what parameters define a setting, on a scale of 1-10
+    this.urbanness = 5;
 
-		this.richness = 4;
 
-		this.urbanness = 5;
 
+    //the parameters that cause the construction of the planes
+    this.numberoffarmingplanes = 4;
 
-		//i think I need to just create a random connection of planes
-		//and then use the different parameters, set up the planes to be different things
+    //the level of this setting creator
+    this.level = 1;
 
-		// i sort of need like a default tree though
+    //the scalar for the size of the planes created
+    this.sizescalar = 1;
 
-		//like I should define the default tree and default
+    //create one kingdom for this setting
+    this.thekingdoms = [];
+    var firstkingdom = new Kingdom("enemyside")
+    this.thekingdoms.push(firstkingdom);
 
-		//like get a map of planes
-		//then create the planes using the richness, their proximity to other things
-		//the like
 
 
+    this.planecreator = new PlaneCreator();
 
-		//the parameters that cause the construction of the planes
-		this.numberoffarmingplanes = 4;
+    //add the kingdom to the plane creator
+    this.planecreator.setkingdom(firstkingdom);
+  }
 
-		//the level of this setting creator
-		this.level = 1;
 
-		//the scalar for the size of the planes created
-		this.sizescalar = 1;
 
-		this.planecreator = new PlaneCreator();
-	}
+  //this way of generating the setting does not rely on the randomness and
+  //customizability of parameters
+  generatedefaultsetting() {
 
 
+    //create the creator of the plane
+    planecreator = new PlaneCreator();
 
-	//this way of generating the setting does not rely on the randomness and
-	//customizability of parameters
-	generatedefaultsetting(){
+    //5 is average
+    planecreator.setdifficulty(5);
 
-		//there are too many ways to generate settings
 
-		//like
+    //create and store 10 planes
+    var planearray = [];
 
-		//create a bunch of planes of the wanted "type" and then attachign them together
+    planearray.push(planecreator.createblankplane());
 
-		//creating a bunch of empty planes attached together with "parameters"
 
-		//and then putting the required objects in them to fufill and match its type
+    //attach the planes to each other
+    //this.attachplane()
 
+  }
 
-		//the "default setting" obviously changes
-		//but im setting it up right now as
+  attachplane(plane1, plane2, plane1pos, plane2pos) {
 
+    //add a one way door from plane1 to plane2 in the positions that I specify
 
+  }
 
-		planecreator = new PlaneCreator();
+  generatetestsetting() {
 
-		planecreator.
+    var firstplane = this.planecreator.createfarmingplane();
 
+    //create a setting for the planes
+    var settingtoreturn = new Setting();
 
+    settingtoreturn.passinplane(firstplane);
 
-		//5 is average
-		planecreator.setdifficulty(5);
+    //add in all the kingdoms to the setting
+    for (var kingdom in this.thekingdoms){
 
+      settingtoreturn.addkingdom(this.thekingdoms[kingdom]);
+    }
 
-		//create and store 10 planes
-		var planearray = [];
+    return (settingtoreturn);
 
-		planearray.push(planecreator.createblankplane());
-		planearray.push(planecreator.createblankplane());
-		planearray.push(planecreator.createblankplane());
-		planearray.push(planecreator.createblankplane());
-		planearray.push(planecreator.createblankplane());
-		planearray.push(planecreator.createblankplane());
-		planearray.push(planecreator.createblankplane());
-		planearray.push(planecreator.createblankplane());
-		planearray.push(planecreator.createblankplane());
-		planearray.push(planecreator.createblankplane());
-
-
-		//attach the planes to each other
-		this.attachplane()
-
-	}
-
-
-	attachplane(plane1, plane2, plane1pos, plane2pos){
-
-		//add a one way door from plane1 to plane2 in the positions that I specify
-
-		
-
-
-	}
-
-
-
-
-	//you create the planes first
-
-	//then you order them and put them in the setting
-
-	generatesetting(){
-
-		//using the parameters of the setting, create and return a setting
-
-		//create 2 planes
-		var firstplane = this.createfarmingplane();
-
-		var secondplane = this.createfarmingplane();
-
-		//var thirdplane  = this.createfarmingplane();
-
-		//var fourthplane = this.createfarmingplane();
-
-
-		//create doors between plane1-2, 2-1, 2-3, 3-2, 3-4, 4-3
-
-
-		//create a setting for the planes
-		var settingtoreturn = new Setting();
-
-
-		//pass the plane into the setting
-		settingtoreturn.passinplane(firstplane);
-		settingtoreturn.passinplane(secondplane);
-
-
-		return(settingtoreturn);
-	}
-
-
-
-
-
-
-
-
-
+  }
 
 }

@@ -1,77 +1,59 @@
 class Controller{
 
 
-	//set up a controller for an object
-	//a very base-level one that can be directly controlled
-	constructor(object){
+  //set up a controller for an object
+  //a very base-level one that can be directly controlled
+  constructor(object) {
 
-		this.object = object;
+    this.object = object;
 
-	}
+  }
 
+  setdirection(direction) {
 
-	setdirection(xdir, ydir){
+    //get a direction matrix
 
-		//get a direction matrix
+    //set it as the direction you're moving
 
-		//set it as the direction you're moving
+    this.object.setdirection(direction);
 
-		this.object.setdirection(xdir, ydir);
+  }
 
-	}
+  turnleft(degree) {
 
+    var xdir = this.object.getdirection()[0];
 
+    var ydir = this.object.getdirection()[1];
 
-	turnleft(degree){
+    var newxdir = Math.cos(degree) * xdir - Math.sin(degree) * ydir;
 
-		var xdir = this.object.getdirection()[0];
+    var newydir = Math.sin(degree) * xdir + Math.cos(degree) * ydir;
 
-		var ydir = this.object.getdirection()[1];
+    this.object.setdirection([newxdir, newydir]);
 
+  }
 
+  turnright(degree) {
 
-		var newxdir = Math.cos(degree)* xdir - Math.sin(degree) * ydir;
+    degree = -degree;
 
-		var newydir = Math.sin(degree)* xdir +Math.cos(degree) *ydir;
+    var xdir = this.object.getdirection()[0];
 
+    var ydir = this.object.getdirection()[1];
 
+    var newxdir = Math.cos(degree) * xdir - Math.sin(degree) * ydir;
 
-		this.object.setdirection(newxdir, newydir);
+    var newydir = Math.sin(degree) * xdir + Math.cos(degree) * ydir;
 
-	}
+    this.object.setdirection([newxdir, newydir]);
 
+  }
 
-	turnright(degree){
+  giveaction(action) {
 
+    //gives the action to the Entities list
 
-		degree = -degree;
+    this.object.giveaction(action);
 
-
-
-		var xdir = this.object.getdirection()[0];
-
-		var ydir = this.object.getdirection()[1];
-
-
-
-		var newxdir = Math.cos(degree)* xdir - Math.sin(degree) * ydir;
-
-		var newydir = Math.sin(degree)* xdir +Math.cos(degree) *ydir;
-
-
-
-		this.object.setdirection(newxdir, newydir);
-
-
-
-	}
-
-
-	giveaction(action){
-
-		//gives the action to the Entities list
-
-		this.object.giveaction(action);
-
-	}
+  }
 }
